@@ -1,24 +1,24 @@
-searchInput.addEventListener("keyup", debounce(searchRepository, 250));
+//Ожидаем нажатие клавиш и запускаем запрос данных
+searchInput.addEventListener("keyup", debounce(searchRepository, 500));
 
+//функция для очистки списка репо
+clearRepo = () => {
+  repositoryListSearch.innerHTML = "";
+};
+
+//Получаем данные от сервера
 async function searchRepository() {
   clearRepo();
   if (searchInput.value) {
-    return await fetch(
-      `https://api.github.com/search/repositories?q=${searchInput.value}&per_page=5`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        res.items.forEach((i) => createRepository(i));
-      });
+    let response = await fetch(`https://api.github.com/search/repositories?q=${searchInput.value}&per_page=5`)
+    let data = await response.json()
+    return data.items.forEach((i) => createRepository(i));      
   } else {
     clearRepo();
   }
 }
 
-clearRepo = () => {
-  repositoryListSearch.innerHTML = "";
-};
-
+//функция задержка получения данных с сервера
 function debounce(func, ms, immediate) {
   let timeout;
   return function executedFunction() {
@@ -26,16 +26,11 @@ function debounce(func, ms, immediate) {
     const args = arguments;
     const later = function () {
       timeout = null;
-      if (!immediate) {
-        func.apply(context, args);
-      }
+      if (!immediate) func.apply(context, args);
     };
     const callNow = immediate && !timeout;
     clearTimeout(timeout);
     timeout = setTimeout(later, ms);
-
-    if (callNow) {
-      func.apply(context, args);
-    }
+    if (callNow) func.apply(context, args);
   };
 }
